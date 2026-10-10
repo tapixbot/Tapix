@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tapix - Mini App Game</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px;
+            overflow-x: hidden;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding-bottom: 70px;
+        }
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 15px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .brand-logo {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(45deg, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .stats-group {
+            display: flex;
+            gap: 15px;
+        }
+        .stat-item {
+            font-size: 13px;
+            font-weight: bold;
+            color: #facc15;
+        }
+        /* Pages */
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .page.active {
+            display: flex;
+        }
+        /* Main Game Screen */
+        .energy-box {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #38bdf8;
+        }
+        .spin-btn {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #f59e0b, #d97706);
+            border: none;
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+            margin-top: 30px;
+        }
+        .spin-btn:active {
+            transform: scale(0.93);
+            box-shadow: 0 5px 10px rgba(245, 158, 11, 0.4);
+        }
+        /* Wheel Screen */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            border: 8px solid #facc15;
+            background: conic-gradient(#ef4444 0deg 90deg, #3b82f6 90deg 180deg, #10b981 180deg 270deg, #8b5cf6 270deg 360deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            transition: transform 3s cubic-bezier(0.15, 0.85, 0.35, 1);
+        }
+        .wheel-center {
+            width: 50px;
+            height: 50px;
+            background: #ffffff;
+            border-radius: 50%;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        /* Upgrade & Character */
+        .char-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            width: 100%;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .upgrade-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        /* Bottom Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #090d16;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .nav-item {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .nav-item.active {
+            color: #facc15;
+        }
+        .nav-item span {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Top Bar with Tapix Brand -->
+        <div class="top-bar">
+            <div class="brand-logo">TAPIX</div>
+            <div class="stats-group">
+                <div class="stat-item">🪙 <span id="coins">1000</span></div>
+                <div class="stat-item">⚡ <span id="energy">50</span></div>
+            </div>
+        </div>
+
+        <!-- 1. Main Game Screen -->
+        <div id="page-main" class="page active">
+            <h2>Tapix Arena</h2>
+            <div class="energy-box">Energy: <span id="main-energy">50</span> / 50</div>
+            <button class="spin-btn" onclick="doSpin()">SPIN</button>
+        </div>
+
+        <!-- 2. Wheel Screen -->
+        <div id="page-wheel" class="page">
+            <h2>Tapix Fortune Wheel</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-top: 5px;">1% chance to win 100k Energy!</p>
+            <div class="wheel-container" id="fortuneWheel">
+                <div class="wheel-center">🍀</div>
+            </div>
+            <button class="upgrade-btn" style="background:#f59e0b; margin-top:15px; padding:10px 25px;" onclick="spinWheel()">Spin Wheel</button>
+        </div>
+
+        <!-- 3. Character Upgrade Screen -->
+        <div id="page-upgrade" class="page">
+            <h2>Character Customization</h2>
+            <div style="font-size: 50px; margin: 15px 0;">🦹‍♂️</div>
+            <div class="char-card">
+                <div style="text-align: left;">
+                    <strong>Head Upgrade</strong>
+                    <div style="font-size: 12px; color: #94a3b8;">Cost: 500 Coins</div>
+                </div>
+                <button class="upgrade-btn" onclick="upgradeItem(500)">Buy</button>
+            </div>
+            <div class="char-card">
+                <div style="text-align: left;">
+                    <strong>Body Upgrade</strong>
+                    <div style="font-size: 12px; color: #94a3b8;">Cost: 1000 Coins</div>
+                </div>
+                <button class="upgrade-btn" onclick="upgradeItem(1000)">Buy</button>
+            </div>
+        </div>
+
+        <!-- 4. Invite Screen -->
+        <div id="page-invite" class="page">
+            <h2>Invite Friends</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin: 10px 0;">Earn +150 Energy per friend!</p>
+            <button class="upgrade-btn" style="background:#3b82f6; width:100%; padding:12px; margin-bottom:15px;" onclick="copyRefLink()">Copy Invite Link</button>
+            
+            <h4 style="margin-top: 15px; margin-bottom: 10px; align-self: flex-start;">Invited Friends (0):</h4>
+            <div id="friends-list" style="width: 100%; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 10px; min-height: 80px; color: #94a3b8; font-size: 13px;">
+                No friends joined yet.
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="nav-bar">
+        <button class="nav-item active" onclick="switchPage('main', this)"><span>🎮</span>Game</button>
+        <button class="nav-item" onclick="switchPage('wheel', this)"><span>🎡</span>Wheel</button>
+        <button class="nav-item" onclick="switchPage('upgrade', this)"><span>👕</span>Upgrade</button>
+        <button class="nav-item" onclick="switchPage('invite', this)"><span>👥</span>Invite</button>
+    </div>
+
+    <script>
+        // Telegram WebApp Init
+        window.Telegram.WebApp.ready();
+
+        let coins = 1000;
+        let energy = 50;
+
+        function updateUI() {
+            document.getElementById('coins').innerText = coins;
+            document.getElementById('energy').innerText = energy;
+            document.getElementById('main-energy').innerText = energy;
+        }
+
+        function switchPage(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+            
+            document.getElementById('page-' + pageId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function doSpin() {
+            if (energy > 0) {
+                energy -= 1;
+                coins += 50;
+                updateUI();
+            } else {
+                alert('Energy is out!');
+            }
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('fortuneWheel');
+            let randomDegree = Math.floor(Math.random() * 3600) + 720;
+            wheel.style.transform = `rotate(${randomDegree}deg)`;
+            
+            setTimeout(() => {
+                alert('Congratulations! Reward claimed.');
+            }, 3000);
+        }
+
+        function upgradeItem(cost) {
+            if (coins >= cost) {
+                coins -= cost;
+                updateUI();
+                alert('Successfully purchased!');
+            } else {
+                alert('Not enough coins!');
+            }
+        }
+
+        function copyRefLink() {
+            navigator.clipboard.writeText("https://t.me/TapixBot?start=ref123");
+            alert('Tapix invite link copied!');
+        }
+
+        updateUI();
+    </script>
+</body>
+</html>
