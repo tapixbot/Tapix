@@ -1,737 +1,469 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tapix - Cartoon Slot & Upgrade Mini App</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOINKERS</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Bungee&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700;800;900&display=swap');
+
         * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Fredoka', cursive, sans-serif;
             user-select: none;
             -webkit-user-select: none;
-            box-sizing: border-box;
         }
+
         body {
-            font-family: 'Fredoka', sans-serif;
-            background: #1e3a8a;
+            background: #0d1322;
             color: #ffffff;
-            touch-action: manipulation;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
             overflow-x: hidden;
         }
-        .bungee {
-            font-family: 'Bungee', cursive;
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding-bottom: 80px;
         }
-        /* Custom Game Cartoon Sky Background */
-        .sky-bg {
-            background: linear-gradient(180deg, #1d4ed8 0%, #3b82f6 50%, #60a5fa 100%);
+
+        /* Top HUD */
+        .top-hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            background: #182238;
+            padding: 8px 12px;
+            border-radius: 20px;
+            border: 3px solid #283759;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 0 #080c16;
+        }
+
+        .profile-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            border: 2px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .hud-stats {
+            display: flex;
+            gap: 6px;
+        }
+
+        .hud-pill {
+            background: #090d16;
+            border: 2px solid #23314d;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .hud-pill.coins { color: #fbbf24; border-color: #d97706; }
+        .hud-pill.energy { color: #38bdf8; border-color: #0284c7; }
+
+        /* Pages */
+        .page {
+            display: none;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        /* Main Game Box */
+        .game-title {
+            font-size: 28px;
+            font-weight: 900;
+            color: #fbbf24;
+            text-shadow: 0 3px 0 #b45309, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+
+        .slot-frame {
+            background: #2563eb;
+            border: 6px solid #1d4ed8;
+            border-radius: 26px;
+            width: 100%;
+            padding: 16px;
+            box-shadow: 0 8px 0 #1e3a8a, inset 0 4px 0 rgba(255,255,255,0.3);
             position: relative;
         }
-        /* Clouds CSS Animation */
-        .cloud {
+
+        .slot-display {
+            background: #ffffff;
+            border: 4px solid #0f172a;
+            border-radius: 18px;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 6px;
+            gap: 6px;
+            box-shadow: inset 0 6px 0 rgba(0,0,0,0.15);
+        }
+
+        .reel {
+            background: #f8fafc;
+            border: 3px solid #cbd5e1;
+            border-radius: 14px;
+            width: 31%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 44px;
+            box-shadow: inset 0 4px 0 rgba(0,0,0,0.06);
+        }
+
+        /* Big Spin Button */
+        .spin-wrapper {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .spin-btn {
+            width: 155px;
+            height: 155px;
+            background: linear-gradient(180deg, #facc15 0%, #eab308 100%);
+            border: 6px solid #ffffff;
+            border-radius: 38px;
+            transform: rotate(45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 0 #ca8a04, 0 16px 25px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.05s ease, box-shadow 0.05s ease;
+        }
+
+        .spin-btn:active {
+            transform: rotate(45deg) scale(0.95);
+            box-shadow: 0 6px 0 #ca8a04, 0 8px 15px rgba(0,0,0,0.4);
+        }
+
+        .spin-btn-text {
+            transform: rotate(-45deg);
+            color: #ffffff;
+            font-size: 32px;
+            font-weight: 900;
+            text-shadow: 0 3px 0 #a16207, -2px -2px 0 #a16207, 2px -2px 0 #a16207, -2px 2px 0 #a16207;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .spin-btn-sub {
+            font-size: 10px;
+            color: #fef08a;
+            display: block;
+            margin-top: 4px;
+        }
+
+        /* Wheel Area */
+        .wheel-box {
+            position: relative;
+            width: 260px;
+            height: 260px;
+            margin: 20px 0;
+        }
+
+        .wheel-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 8px solid #facc15;
+            background: conic-gradient(
+                #ef4444 0deg 45deg, 
+                #3b82f6 45deg 135deg, 
+                #10b981 135deg 225deg, 
+                #f59e0b 225deg 315deg,
+                #8b5cf6 315deg 360deg
+            );
+            box-shadow: 0 8px 0 #b45309;
+            transition: transform 3s cubic-bezier(0.15, 0.85, 0.35, 1);
+        }
+
+        .wheel-arrow {
             position: absolute;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 50px;
-            animation: floatClouds 20s linear infinite;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 24px solid #facc15;
+            z-index: 10;
         }
-        @keyframes floatClouds {
-            0% { transform: translateX(-100px); }
-            100% { transform: translateX(450px); }
+
+        /* Buttons & Cards */
+        .btn-boinker {
+            background: #facc15;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 800;
+            box-shadow: 0 4px 0 #ca8a04;
+            cursor: pointer;
+            font-size: 14px;
         }
-        /* Slot Reel Animation Styling */
-        .slot-reel-container {
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            border: 4px solid #f59e0b;
-            box-shadow: inset 0 0 15px #000000, 0 8px 20px rgba(0,0,0,0.6);
+
+        .btn-boinker:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #ca8a04;
         }
-        .slot-reel-item {
-            transition: transform 0.1s ease-in-out;
+
+        .item-card {
+            background: #182238;
+            border: 3px solid #283759;
+            border-radius: 18px;
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 0 #080c16;
         }
-        .spinning {
-            animation: slotSpin 0.15s linear infinite;
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #090d16;
+            border-top: 4px solid #182238;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
         }
-        @keyframes slotSpin {
-            0% { transform: translateY(-100%); opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { transform: translateY(100%); opacity: 0.5; }
+
+        .nav-item {
+            background: none;
+            border: none;
+            color: #64748b;
+            font-size: 11px;
+            font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
         }
-        /* Vibrant Cartoon Buttons */
-        .btn-cartoon-yellow {
-            background: linear-gradient(180deg, #fef08a 0%, #facc15 40%, #eab308 100%);
-            box-shadow: 0 6px 0 #a16207, 0 10px 15px rgba(0,0,0,0.4);
-            text-shadow: 0 2px 0 #854d0e;
+
+        .nav-item.active {
+            color: #facc15;
         }
-        .btn-cartoon-yellow:active {
-            transform: translateY(4px);
-            box-shadow: 0 2px 0 #a16207, 0 4px 6px rgba(0,0,0,0.4);
-        }
-        .btn-cartoon-green {
-            background: linear-gradient(180deg, #86efac 0%, #22c55e 50%, #15803d 100%);
-            box-shadow: 0 5px 0 #14532d, 0 8px 12px rgba(0,0,0,0.3);
-            text-shadow: 0 2px 0 #052e16;
-        }
-        .btn-cartoon-green:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #14532d;
-        }
-        .btn-cartoon-blue {
-            background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 50%, #1d4ed8 100%);
-            box-shadow: 0 5px 0 #1e3a8a, 0 8px 12px rgba(0,0,0,0.3);
-            text-shadow: 0 2px 0 #172554;
-        }
-        .btn-cartoon-blue:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #1e3a8a;
-        }
-        /* Wheel Pointer and Wheel Styles */
-        .wheel-spin {
-            transition: transform 3.5s cubic-bezier(0.15, 0.85, 0.35, 1);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #f59e0b;
-            border-radius: 4px;
+
+        .nav-item span {
+            font-size: 22px;
         }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col justify-between sky-bg select-none">
+<body>
 
-    <!-- Sky Animated Decorative Background -->
-    <div class="cloud w-28 h-8 top-4 left-0 z-0"></div>
-    <div class="cloud w-40 h-10 top-16 -left-20 z-0" style="animation-delay: -7s;"></div>
-    <div class="absolute top-2 right-4 w-12 h-12 bg-amber-100 rounded-full opacity-80 blur-[1px] shadow-[0_0_15px_#fef08a] z-0"></div>
-
-    <!-- Top HUD Bar -->
-    <header class="relative z-10 p-2 sm:p-3 bg-slate-900/80 backdrop-blur-md border-b-4 border-amber-500 rounded-b-2xl shadow-xl">
-        <div class="max-w-md mx-auto flex items-center justify-between gap-1">
-            <!-- User Profile Avatar & Level -->
-            <div class="flex items-center gap-1.5 bg-slate-800/90 p-1.5 rounded-xl border border-slate-700">
-                <div class="relative w-9 h-9 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center border-2 border-amber-400 font-bold text-lg shadow">
-                    👽
-                    <span class="absolute -bottom-1 -right-1 bg-amber-500 text-slate-950 font-black text-[9px] px-1 rounded-full border border-black" id="hud-level">LVL.1983</span>
-                </div>
-                <div class="text-left leading-tight hidden sm:block">
-                    <div class="font-bold text-xs text-amber-300" id="hud-username">Captain Tapix</div>
-                    <div class="text-[10px] text-slate-400">Pro Boinker</div>
-                </div>
+    <div class="container">
+        <!-- Top HUD -->
+        <div class="top-hud">
+            <div class="profile-area">
+                <div class="avatar">🐷</div>
+                <div style="font-size: 13px; font-weight: 900; color: #ffffff;">BOINKERS</div>
             </div>
-
-            <!-- Currencies -->
-            <div class="flex items-center gap-1.5">
-                <!-- Coins -->
-                <div class="flex items-center gap-1 bg-slate-950/70 px-2 py-1 rounded-lg border border-amber-500/40">
-                    <span class="text-base">🪙</span>
-                    <span class="font-bold text-xs text-amber-400 bungee" id="hud-coins">1.3T</span>
-                </div>
-                <!-- Cash/Gems -->
-                <div class="flex items-center gap-1 bg-slate-950/70 px-2 py-1 rounded-lg border border-emerald-500/40">
-                    <span class="text-base">💎</span>
-                    <span class="font-bold text-xs text-emerald-400 bungee" id="hud-gems">3.0B</span>
-                </div>
-                <!-- Energy -->
-                <div class="flex items-center gap-1 bg-slate-950/70 px-2 py-1 rounded-lg border border-sky-500/40">
-                    <span class="text-base">⚡</span>
-                    <span class="font-bold text-xs text-sky-300 bungee" id="hud-energy">36.5K</span>
-                </div>
+            <div class="hud-stats">
+                <div class="hud-pill coins">🪙 <span id="coins">0</span></div>
+                <div class="hud-pill energy">⚡ <span id="energy">0</span></div>
             </div>
         </div>
-    </header>
 
-    <!-- Main Viewport Container -->
-    <main class="relative z-10 flex-1 max-w-md w-full mx-auto p-3 flex flex-col justify-center items-center overflow-y-auto">
-
-        <!-- ================= PAGE 1: SLOT MACHINE ARENA ================= -->
-        <section id="page-game" class="w-full flex flex-col items-center justify-center gap-3">
+        <!-- 1. MAIN GAME PAGE -->
+        <div id="page-main" class="page active">
+            <div class="game-title">BOINKERS</div>
             
-            <!-- Side Events & Shortcuts Bar -->
-            <div class="w-full flex justify-between items-center px-2">
-                <div class="flex gap-2">
-                    <button onclick="switchTab('wheel')" class="bg-amber-500/90 hover:bg-amber-400 text-slate-950 font-black text-xs px-2.5 py-1.5 rounded-xl border-2 border-amber-200 shadow-lg flex items-center gap-1 transition">
-                        <span>🎡</span> FLIGHT WHEEL
-                    </button>
-                    <button onclick="openModal('labModal')" class="bg-indigo-600/90 hover:bg-indigo-500 text-white font-bold text-xs px-2.5 py-1.5 rounded-xl border-2 border-indigo-300 shadow-lg flex items-center gap-1 transition">
-                        <span>🧪</span> LAB
-                    </button>
-                </div>
-                <div class="bg-slate-900/80 px-3 py-1 rounded-full border border-sky-400/50 text-[11px] font-bold text-sky-200">
-                    WIN MULTIPLIER: <span class="text-amber-400 bungee" id="multiplier-badge">X10</span>
+            <div class="slot-frame">
+                <div class="slot-display">
+                    <div class="reel" id="reel1">🪙</div>
+                    <div class="reel" id="reel2">⚡</div>
+                    <div class="reel" id="reel3">🪙</div>
                 </div>
             </div>
 
-            <!-- Metallic Slot Machine Frame -->
-            <div class="w-full bg-gradient-to-b from-slate-800 via-slate-900 to-indigo-950 p-4 rounded-3xl border-4 border-blue-500 shadow-[0_15px_30px_rgba(0,0,0,0.7)] relative">
-                
-                <!-- Slot Machine Header Display -->
-                <div class="bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-500 py-1 px-4 rounded-xl border-2 border-amber-200 mb-3 text-center shadow-md">
-                    <span class="bungee text-slate-950 text-sm tracking-wider">★ TAPIX SLOT ARENA ★</span>
-                </div>
-
-                <!-- 3-Reel Display Area -->
-                <div class="grid grid-cols-3 gap-2 p-2 bg-slate-950 rounded-2xl border-2 border-slate-700 shadow-inner my-2">
-                    <!-- Reel 1 -->
-                    <div class="slot-reel-container h-28 rounded-xl flex items-center justify-center overflow-hidden relative">
-                        <div id="reel-1" class="slot-reel-item text-5xl">⚡</div>
-                    </div>
-                    <!-- Reel 2 -->
-                    <div class="slot-reel-container h-28 rounded-xl flex items-center justify-center overflow-hidden relative">
-                        <div id="reel-2" class="slot-reel-item text-5xl">🪙</div>
-                    </div>
-                    <!-- Reel 3 -->
-                    <div class="slot-reel-container h-28 rounded-xl flex items-center justify-center overflow-hidden relative">
-                        <div id="reel-3" class="slot-reel-item text-5xl">⚡</div>
-                    </div>
-                </div>
-
-                <!-- Energy Progress Bar -->
-                <div class="w-full my-3">
-                    <div class="flex justify-between text-xs font-bold mb-1 text-sky-200">
-                        <span>ENERGY CANS</span>
-                        <span id="energy-bar-text">36,500 / 50,000</span>
-                    </div>
-                    <div class="w-full bg-slate-950 h-4 rounded-full border border-sky-500/50 p-0.5 overflow-hidden shadow-inner">
-                        <div id="energy-progress" class="bg-gradient-to-r from-sky-400 to-blue-600 h-full rounded-full transition-all duration-300" style="width: 73%;"></div>
-                    </div>
-                </div>
-
-                <!-- Spin Controls & Multipliers -->
-                <div class="flex items-center justify-between gap-2 mt-2">
-                    <!-- Multiplier Toggle -->
-                    <button onclick="toggleMultiplier()" class="bg-slate-800 hover:bg-slate-700 border-2 border-amber-400 text-amber-300 rounded-2xl p-2.5 flex flex-col items-center justify-center shadow-md transition active:scale-95">
-                        <span class="text-[10px] text-slate-400 font-bold">BET</span>
-                        <span class="bungee text-base" id="mult-btn-text">X1</span>
-                    </button>
-
-                    <!-- Large Yellow SPIN Button -->
-                    <button id="spin-button" onclick="handleSpin()" class="btn-cartoon-yellow flex-1 py-3 px-4 rounded-2xl text-slate-950 font-black flex flex-col items-center justify-center transition">
-                        <span class="bungee text-2xl tracking-wider">SPIN</span>
-                        <span class="text-[10px] tracking-tight text-amber-950 font-extrabold uppercase">Hold for Autospin</span>
-                    </button>
-
-                    <!-- Auto Spin Toggle -->
-                    <button id="autospin-btn" onclick="toggleAutoSpin()" class="bg-slate-800 hover:bg-slate-700 border-2 border-sky-400 text-sky-300 rounded-2xl p-2.5 flex flex-col items-center justify-center shadow-md transition active:scale-95">
-                        <span class="text-[10px] text-slate-400 font-bold">AUTO</span>
-                        <span class="bungee text-xs text-emerald-400" id="auto-btn-text">OFF</span>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= PAGE 2: WHEEL OF FORTUNE ================= -->
-        <section id="page-wheel" class="w-full flex-col items-center justify-center gap-3 hidden">
-            <div class="bg-slate-900/90 border-4 border-amber-400 rounded-3xl p-4 w-full text-center shadow-2xl relative">
-                
-                <h2 class="bungee text-2xl text-amber-400 tracking-wide mb-1">Ringo Wheel</h2>
-                <p class="text-xs text-slate-300 mb-3">Spin the Flight Wheel for Legendary Rewards!</p>
-
-                <!-- Wheel Structure -->
-                <div class="relative w-64 h-64 mx-auto my-2 flex items-center justify-center">
-                    <!-- Pointer Arrow -->
-                    <div class="absolute -top-3 z-20 text-3xl filter drop-shadow-md">▼</div>
-                    
-                    <!-- Spinning Wheel Canvas/Disc -->
-                    <div id="wheel-disc" class="w-full h-full rounded-full border-8 border-amber-400 shadow-2xl wheel-spin relative overflow-hidden"
-                         style="background: conic-gradient(#ef4444 0deg 45deg, #3b82f6 45deg 90deg, #10b981 90deg 135deg, #f59e0b 135deg 180deg, #8b5cf6 180deg 225deg, #ec4899 225deg 270deg, #06b6d4 270deg 315deg, #eab308 315deg 360deg);">
-                        <!-- Overlay Labels inside Wheel -->
-                        <div class="absolute inset-0 flex items-center justify-center text-xs font-black text-white">
-                            <span class="absolute top-4 font-bold text-[11px]">100K ⚡</span>
-                            <span class="absolute right-4 font-bold text-[11px]">20K ⚡</span>
-                            <span class="absolute bottom-4 font-bold text-[11px]">15K ⚡</span>
-                            <span class="absolute left-4 font-bold text-[11px]">5K ⚡</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Center Pin -->
-                    <div class="absolute w-12 h-12 bg-slate-950 border-4 border-amber-300 rounded-full flex items-center justify-center z-10 shadow-lg text-lg">
-                        🎡
-                    </div>
-                </div>
-
-                <!-- Probability Note Banner -->
-                <div class="bg-slate-950/80 rounded-xl p-2 my-3 border border-slate-700 text-left text-[11px] text-slate-300 space-y-1">
-                    <div class="text-amber-400 font-bold">★ Reward Chances:</div>
-                    <div class="flex justify-between"><span>• Legendary (100K Energy):</span> <span class="font-bold text-amber-300">1%</span></div>
-                    <div class="flex justify-between"><span>• Epic (15K-20K Energy):</span> <span class="font-bold text-emerald-300">20%</span></div>
-                    <div class="flex justify-between"><span>• Regular (Coins & Gems):</span> <span class="font-bold text-sky-300">79%</span></div>
-                </div>
-
-                <!-- Spin Wheel Button -->
-                <button onclick="spinFortuneWheel()" id="wheel-spin-btn" class="btn-cartoon-green w-full py-3 rounded-2xl bungee text-lg tracking-wider text-white">
-                    SPIN WHEEL (COST: 50 ⚡)
-                </button>
-            </div>
-        </section>
-
-        <!-- ================= PAGE 3: BUILD / CHARACTER UPGRADE ================= -->
-        <section id="page-build" class="w-full flex-col items-center justify-center gap-3 hidden">
-            <div class="bg-slate-900/90 border-4 border-indigo-500 rounded-3xl p-4 w-full text-center shadow-2xl">
-                
-                <div class="flex justify-between items-center mb-2">
-                    <h2 class="bungee text-xl text-indigo-300">BUILD & UPGRADE</h2>
-                    <span class="bg-amber-500 text-slate-950 bungee text-xs px-2.5 py-1 rounded-full" id="build-lvl-tag">LVL. 1983</span>
-                </div>
-
-                <!-- Character Active Avatar Stage -->
-                <div class="relative w-full bg-gradient-to-b from-indigo-950 to-slate-950 border-2 border-indigo-400/40 rounded-2xl p-4 my-2 flex flex-col items-center shadow-inner">
-                    <div class="text-7xl my-2 filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] animate-bounce" id="char-avatar">
-                        🦹‍♂️
-                    </div>
-                    <div class="text-xs font-bold text-indigo-200 mt-1" id="char-title">Galactic Boinker Armor</div>
-                    
-                    <!-- Set Completion Chest Progress -->
-                    <div class="w-full mt-3 bg-slate-900/90 p-2 rounded-xl border border-slate-800">
-                        <div class="flex justify-between text-[11px] font-bold text-slate-300 mb-1">
-                            <span>Set Completion</span>
-                            <span id="set-progress-text">3 / 9 Items</span>
-                        </div>
-                        <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-700">
-                            <div id="set-progress-bar" class="bg-gradient-to-r from-amber-400 to-yellow-500 h-full transition-all duration-300" style="width: 33%;"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Upgrade Equipment Cards -->
-                <div class="space-y-2 text-left my-2">
-                    <!-- Head Slot -->
-                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl bg-slate-900 p-1.5 rounded-lg">👑</span>
-                            <div>
-                                <div class="font-bold text-xs text-slate-100">Golden Crown</div>
-                                <div class="text-[10px] text-amber-400 font-bold">+15% Spin Luck</div>
-                            </div>
-                        </div>
-                        <button onclick="buyUpgrade('head', 500000)" class="btn-cartoon-yellow px-3 py-1.5 rounded-xl text-xs bungee text-slate-950">
-                            500K 🪙
-                        </button>
-                    </div>
-
-                    <!-- Body Armor -->
-                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl bg-slate-900 p-1.5 rounded-lg">🛡️</span>
-                            <div>
-                                <div class="font-bold text-xs text-slate-100">Cyber Suit</div>
-                                <div class="text-[10px] text-emerald-400 font-bold">+20% Max Energy</div>
-                            </div>
-                        </div>
-                        <button onclick="buyUpgrade('body', 1200000)" class="btn-cartoon-yellow px-3 py-1.5 rounded-xl text-xs bungee text-slate-950">
-                            1.2M 🪙
-                        </button>
-                    </div>
-
-                    <!-- Gear Weapon -->
-                    <div class="bg-slate-800/90 p-2.5 rounded-xl border border-slate-700 flex items-center justify-between">
-                        <div class="flex items-center gap-2">
-                            <span class="text-2xl bg-slate-900 p-1.5 rounded-lg">⚡</span>
-                            <div>
-                                <div class="font-bold text-xs text-slate-100">Energy Blaster</div>
-                                <div class="text-[10px] text-sky-400 font-bold">+2x Multiplier Slot</div>
-                            </div>
-                        </div>
-                        <button onclick="buyUpgrade('gear', 2500000)" class="btn-cartoon-yellow px-3 py-1.5 rounded-xl text-xs bungee text-slate-950">
-                            2.5M 🪙
-                        </button>
+            <div class="spin-wrapper">
+                <div class="spin-btn" onclick="spinSlot()">
+                    <div class="spin-btn-text">
+                        SPIN
+                        <span class="spin-btn-sub">1 ENERGY</span>
                     </div>
                 </div>
             </div>
-        </section>
-
-        <!-- ================= PAGE 4: EARN & INVITE FRIENDS ================= -->
-        <section id="page-earn" class="w-full flex-col items-center justify-center gap-3 hidden">
-            <div class="bg-slate-900/90 border-4 border-emerald-500 rounded-3xl p-4 w-full text-center shadow-2xl">
-                <h2 class="bungee text-2xl text-emerald-400 mb-1">EARN & INVITE</h2>
-                <p class="text-xs text-slate-300 mb-3">Invite your friends & get massive Energy Boosts!</p>
-
-                <!-- Referral Reward Banner -->
-                <div class="bg-gradient-to-r from-emerald-900/60 to-teal-900/60 border border-emerald-400/40 p-3 rounded-2xl mb-3 flex items-center justify-between">
-                    <div class="text-left">
-                        <div class="text-xs font-bold text-emerald-300">INVITE BONUS</div>
-                        <div class="bungee text-lg text-white">+150 ENERGY CANS</div>
-                        <div class="text-[10px] text-slate-300">Per qualified Telegram referral</div>
-                    </div>
-                    <div class="text-4xl">🎁</div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="grid grid-cols-2 gap-2 mb-4">
-                    <button onclick="copyInviteLink()" class="btn-cartoon-green py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
-                        <span>📋</span> COPY LINK
-                    </button>
-                    <button onclick="shareTelegram()" class="btn-cartoon-blue py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-1">
-                        <span>✈️</span> SHARE APP
-                    </button>
-                </div>
-
-                <!-- Referred Friends List -->
-                <div class="text-left">
-                    <div class="flex justify-between items-center mb-2">
-                        <span class="font-bold text-xs text-slate-200">INVITED FRIENDS (3)</span>
-                        <span class="text-[10px] text-emerald-400 font-bold">TOTAL EARNED: +450 ⚡</span>
-                    </div>
-
-                    <div class="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        <!-- Friend 1 -->
-                        <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">🚀</span>
-                                <div>
-                                    <div class="font-bold text-xs text-slate-100">Alex_Crypto</div>
-                                    <div class="text-[9px] text-emerald-400">Active • Lvl 420</div>
-                                </div>
-                            </div>
-                            <span class="text-xs font-bold text-amber-400">+150 ⚡</span>
-                        </div>
-                        <!-- Friend 2 -->
-                        <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">👾</span>
-                                <div>
-                                    <div class="font-bold text-xs text-slate-100">Satoshi_N</div>
-                                    <div class="text-[9px] text-emerald-400">Active • Lvl 1200</div>
-                                </div>
-                            </div>
-                            <span class="text-xs font-bold text-amber-400">+150 ⚡</span>
-                        </div>
-                        <!-- Friend 3 -->
-                        <div class="bg-slate-800/80 p-2 rounded-xl border border-slate-700 flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xl">🦊</span>
-                                <div>
-                                    <div class="font-bold text-xs text-slate-100">Web3_Guru</div>
-                                    <div class="text-[9px] text-slate-400">Joined 2h ago</div>
-                                </div>
-                            </div>
-                            <span class="text-xs font-bold text-amber-400">+150 ⚡</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ================= PAGE 5: STICKERS COLLECTION ================= -->
-        <section id="page-stickers" class="w-full flex-col items-center justify-center gap-3 hidden">
-            <div class="bg-slate-900/90 border-4 border-purple-500 rounded-3xl p-4 w-full text-center shadow-2xl">
-                <h2 class="bungee text-2xl text-purple-400 mb-1">STICKER ALBUM</h2>
-                <p class="text-xs text-slate-300 mb-3">Collect rare Boinker stickers to unlock multiplier perks!</p>
-
-                <!-- Sticker Album Grid -->
-                <div class="grid grid-cols-3 gap-2 my-2">
-                    <!-- Sticker 1 -->
-                    <div class="bg-slate-800 border-2 border-amber-400 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1">🚀</span>
-                        <span class="text-[10px] font-bold text-amber-300">Moon Rocket</span>
-                        <span class="text-[8px] bg-amber-500 text-black font-black px-1 rounded-full absolute -top-1 -right-1">UNLOCKED</span>
-                    </div>
-                    <!-- Sticker 2 -->
-                    <div class="bg-slate-800 border-2 border-amber-400 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1">💎</span>
-                        <span class="text-[10px] font-bold text-amber-300">Diamond Hands</span>
-                        <span class="text-[8px] bg-amber-500 text-black font-black px-1 rounded-full absolute -top-1 -right-1">UNLOCKED</span>
-                    </div>
-                    <!-- Sticker 3 -->
-                    <div class="bg-slate-800 border-2 border-amber-400 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1">👑</span>
-                        <span class="text-[10px] font-bold text-amber-300">Crown Sloth</span>
-                        <span class="text-[8px] bg-amber-500 text-black font-black px-1 rounded-full absolute -top-1 -right-1">UNLOCKED</span>
-                    </div>
-                    <!-- Locked Stickers -->
-                    <div class="bg-slate-950/80 border-2 border-slate-700 opacity-60 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1 grayscale">👽</span>
-                        <span class="text-[10px] font-bold text-slate-400">Alien Butt</span>
-                        <span class="text-[8px] bg-slate-700 text-slate-300 font-bold px-1 rounded-full absolute -top-1 -right-1">LOCKED</span>
-                    </div>
-                    <div class="bg-slate-950/80 border-2 border-slate-700 opacity-60 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1 grayscale">⚡</span>
-                        <span class="text-[10px] font-bold text-slate-400">Overcharge</span>
-                        <span class="text-[8px] bg-slate-700 text-slate-300 font-bold px-1 rounded-full absolute -top-1 -right-1">LOCKED</span>
-                    </div>
-                    <div class="bg-slate-950/80 border-2 border-slate-700 opacity-60 p-2 rounded-2xl flex flex-col items-center relative">
-                        <span class="text-3xl my-1 grayscale">🎰</span>
-                        <span class="text-[10px] font-bold text-slate-400">Jackpot King</span>
-                        <span class="text-[8px] bg-slate-700 text-slate-300 font-bold px-1 rounded-full absolute -top-1 -right-1">LOCKED</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="relative z-20 bg-slate-950/95 border-t-4 border-amber-500 py-2 px-3 shadow-2xl">
-        <div class="max-w-md mx-auto flex justify-around items-center">
-            <button onclick="switchTab('game')" id="nav-game" class="flex flex-col items-center text-amber-400 transition">
-                <span class="text-2xl">🎰</span>
-                <span class="text-[10px] bungee">SLOTS</span>
-            </button>
-            <button onclick="switchTab('wheel')" id="nav-wheel" class="flex flex-col items-center text-slate-400 transition">
-                <span class="text-2xl">🎡</span>
-                <span class="text-[10px] bungee">WHEEL</span>
-            </button>
-            <button onclick="switchTab('build')" id="nav-build" class="flex flex-col items-center text-slate-400 transition">
-                <span class="text-2xl">🦹‍♂️</span>
-                <span class="text-[10px] bungee">BUILD</span>
-            </button>
-            <button onclick="switchTab('earn')" id="nav-earn" class="flex flex-col items-center text-slate-400 transition">
-                <span class="text-2xl">🎁</span>
-                <span class="text-[10px] bungee">EARN</span>
-            </button>
-            <button onclick="switchTab('stickers')" id="nav-stickers" class="flex flex-col items-center text-slate-400 transition">
-                <span class="text-2xl">🖼️</span>
-                <span class="text-[10px] bungee">ALBUM</span>
-            </button>
         </div>
-    </nav>
 
-    <!-- Modal Popup Notice -->
-    <div id="gameModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border-4 border-amber-400 rounded-3xl p-5 max-w-xs w-full text-center shadow-2xl">
-            <div id="modal-icon" class="text-5xl mb-2">🎉</div>
-            <h3 id="modal-title" class="bungee text-xl text-amber-300 mb-1">CONGRATS!</h3>
-            <p id="modal-msg" class="text-xs text-slate-200 mb-4">You won 50,000 Coins!</p>
-            <button onclick="closeModal('gameModal')" class="btn-cartoon-yellow w-full py-2 rounded-xl bungee text-slate-950 text-sm">
-                CLAIM
-            </button>
+        <!-- 2. WHEEL PAGE -->
+        <div id="page-wheel" class="page">
+            <div class="game-title">RINGO WHEEL</div>
+            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 10px;">1% Chance to get 100k Energy!</p>
+
+            <div class="wheel-box">
+                <div class="wheel-arrow"></div>
+                <div class="wheel-canvas" id="wheelCanvas"></div>
+            </div>
+
+            <button class="btn-boinker" style="font-size: 16px; padding: 12px 30px;" onclick="spinWheel()">SPIN WHEEL</button>
+        </div>
+
+        <!-- 3. UPGRADE PAGE -->
+        <div id="page-upgrade" class="page">
+            <div class="game-title" style="color: #38bdf8;">UPGRADES</div>
+            <div style="font-size: 70px; margin: 10px 0;">🐷</div>
+
+            <div class="item-card">
+                <div>
+                    <div style="font-size: 15px; font-weight: 900;">HEAD GEAR</div>
+                    <div style="color: #fbbf24; font-size: 12px;">Cost: 500 Coins</div>
+                </div>
+                <button class="btn-boinker" onclick="buyItem(500)">UPGRADE</button>
+            </div>
+
+            <div class="item-card">
+                <div>
+                    <div style="font-size: 15px; font-weight: 900;">BODY GEAR</div>
+                    <div style="color: #fbbf24; font-size: 12px;">Cost: 1000 Coins</div>
+                </div>
+                <button class="btn-boinker" onclick="buyItem(1000)">UPGRADE</button>
+            </div>
+        </div>
+
+        <!-- 4. INVITE PAGE -->
+        <div id="page-invite" class="page">
+            <div class="game-title" style="color: #4ade80;">FRIENDS</div>
+            <p style="color: #94a3b8; font-size: 12px; margin-bottom: 15px;">Earn +150 Energy per friend invite!</p>
+
+            <button class="btn-boinker" style="width: 100%; padding: 14px;" onclick="copyInviteLink()">COPY INVITE LINK</button>
+
+            <div style="width: 100%; margin-top: 20px; text-align: left;">
+                <h4 style="color: #94a3b8; font-size: 12px;">INVITED FRIENDS (0):</h4>
+                <div style="background: #182238; border: 2px solid #283759; border-radius: 14px; padding: 15px; margin-top: 6px; color: #64748b; font-size: 13px; text-align: center;">
+                    No friends joined yet.
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Application Logic & Interactive Script -->
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-item active" onclick="switchTab('main', this)"><span>🎰</span>SPIN</button>
+        <button class="nav-item" onclick="switchTab('wheel', this)"><span>🎡</span>WHEEL</button>
+        <button class="nav-item" onclick="switchTab('upgrade', this)"><span>👕</span>UPGRADE</button>
+        <button class="nav-item" onclick="switchTab('invite', this)"><span>👥</span>FRIENDS</button>
+    </div>
+
     <script>
-        // Telegram WebApp Initialization
-        if (window.Telegram && window.Telegram.WebApp) {
-            window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand();
-        }
+        window.Telegram.WebApp.ready();
 
-        // Game State Variables
-        let state = {
-            coins: 1300000000000, // 1.3T
-            gems: 3000000000,    // 3.0B
-            energy: 36500,       // 36.5K
-            maxEnergy: 50000,
-            multiplier: 10,
-            autospin: false,
-            isSpinning: false,
-            level: 1983
-        };
+        let coins = 0;
+        let energy = 0;
 
-        const reelSymbols = ['🪙', '⚡', '🎁', '💎', '🚀', '👑'];
+        const slotItems = ['🪙', '⚡', '💣', '💎'];
 
-        // Format Big Numbers into Readable Form (K, M, B, T)
-        function formatNumber(num) {
-            if (num >= 1e12) return (num / 1e12).toFixed(1) + 'T';
-            if (num >= 1e9) return (num / 1e9).toFixed(1) + 'B';
-            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
-            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
-            return num.toString();
-        }
-
-        // Update Top HUD Elements
         function updateHUD() {
-            document.getElementById('hud-coins').innerText = formatNumber(state.coins);
-            document.getElementById('hud-gems').innerText = formatNumber(state.gems);
-            document.getElementById('hud-energy').innerText = formatNumber(state.energy);
-            document.getElementById('hud-level').innerText = 'LVL.' + state.level;
-            document.getElementById('build-lvl-tag').innerText = 'LVL. ' + state.level;
-            
-            // Energy Bar Update
-            document.getElementById('energy-bar-text').innerText = `${state.energy.toLocaleString()} / ${state.maxEnergy.toLocaleString()}`;
-            const percentage = Math.min(100, Math.max(0, (state.energy / state.maxEnergy) * 100));
-            document.getElementById('energy-progress').style.width = percentage + '%';
+            document.getElementById('coins').innerText = coins;
+            document.getElementById('energy').innerText = energy;
         }
 
-        // Navigation Tab Switcher
-        function switchTab(tabName) {
-            const tabs = ['game', 'wheel', 'build', 'earn', 'stickers'];
-            tabs.forEach(t => {
-                const page = document.getElementById('page-' + t);
-                const nav = document.getElementById('nav-' + t);
-                if (t === tabName) {
-                    page.classList.remove('hidden');
-                    page.classList.add('flex');
-                    nav.classList.remove('text-slate-400');
-                    nav.classList.add('text-amber-400');
-                } else {
-                    page.classList.add('hidden');
-                    page.classList.remove('flex');
-                    nav.classList.remove('text-amber-400');
-                    nav.classList.add('text-slate-400');
-                }
-            });
+        function switchTab(pageId, btn) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+
+            document.getElementById('page-' + pageId).classList.add('active');
+            btn.classList.add('active');
         }
 
-        // Multiplier Toggle
-        function toggleMultiplier() {
-            const mults = [1, 10, 25];
-            let nextIndex = (mults.indexOf(state.multiplier) + 1) % mults.length;
-            state.multiplier = mults[nextIndex];
-            document.getElementById('mult-btn-text').innerText = 'X' + state.multiplier;
-            document.getElementById('multiplier-badge').innerText = 'X' + state.multiplier;
-        }
-
-        // Auto Spin Toggle
-        function toggleAutoSpin() {
-            state.autospin = !state.autospin;
-            const btnText = document.getElementById('auto-btn-text');
-            if (state.autospin) {
-                btnText.innerText = 'ON';
-                btnText.className = 'bungee text-xs text-amber-300 animate-pulse';
-                if (!state.isSpinning) handleSpin();
-            } else {
-                btnText.innerText = 'OFF';
-                btnText.className = 'bungee text-xs text-emerald-400';
-            }
-        }
-
-        // Slot Spin Engine
-        function handleSpin() {
-            if (state.isSpinning) return;
-            const cost = 10 * state.multiplier;
-            
-            if (state.energy < cost) {
-                showModal('⚡ OUT OF ENERGY', 'You need more energy cans to spin!', '⚠️');
-                state.autospin = false;
-                document.getElementById('auto-btn-text').innerText = 'OFF';
-                return;
-            }
-
-            state.energy -= cost;
-            state.isSpinning = true;
-            updateHUD();
-
-            const reel1 = document.getElementById('reel-1');
-            const reel2 = document.getElementById('reel-2');
-            const reel3 = document.getElementById('reel-3');
-
-            reel1.classList.add('spinning');
-            reel2.classList.add('spinning');
-            reel3.classList.add('spinning');
-
-            setTimeout(() => {
-                const res1 = reelSymbols[Math.floor(Math.random() * reelSymbols.length)];
-                const res2 = reelSymbols[Math.floor(Math.random() * reelSymbols.length)];
-                const res3 = reelSymbols[Math.floor(Math.random() * reelSymbols.length)];
-
-                reel1.classList.remove('spinning');
-                reel1.innerText = res1;
-
-                setTimeout(() => {
-                    reel2.classList.remove('spinning');
-                    reel2.innerText = res2;
-
-                    setTimeout(() => {
-                        reel3.classList.remove('spinning');
-                        reel3.innerText = res3;
-
-                        // Check Win Logic
-                        evaluateWin(res1, res2, res3);
-                        state.isSpinning = false;
-
-                        if (state.autospin) {
-                            setTimeout(handleSpin, 500);
-                        }
-                    }, 150);
-                }, 150);
-            }, 300);
-        }
-
-        // Evaluate Slot Results
-        function evaluateWin(r1, r2, r3) {
-            if (r1 === r2 && r2 === r3) {
-                const reward = 5000000 * state.multiplier;
-                state.coins += reward;
-                showModal('JACKPOT TRIPLE!', `3x ${r1} MATCH! Won ${formatNumber(reward)} Coins!`, '🎰');
-            } else if (r1 === r2 || r2 === r3 || r1 === r3) {
-                const reward = 500000 * state.multiplier;
-                state.coins += reward;
-            }
-            updateHUD();
-        }
-
-        // Spin Wheel Probability Engine
-        function spinFortuneWheel() {
-            if (state.isSpinning) return;
-            if (state.energy < 50) {
-                showModal('NO ENERGY', 'You need at least 50 Energy Cans!', '⚡');
-                return;
-            }
-
-            state.energy -= 50;
-            state.isSpinning = true;
-            updateHUD();
-
-            const wheel = document.getElementById('wheel-disc');
-            const randomDeg = Math.floor(3600 + Math.random() * 360);
-            wheel.style.transform = `rotate(${randomDeg}deg)`;
-
-            setTimeout(() => {
-                state.isSpinning = false;
+        function spinSlot() {
+            if (energy >= 1) {
+                energy -= 1;
                 
-                // Weighted Probability Tiers
-                const rand = Math.random() * 100;
-                if (rand <= 1) { // 1% Chance
-                    state.energy += 100000;
-                    showModal('LEGENDARY WIN!', '100,000 ENERGY CANS!', '🎉');
-                } else if (rand <= 21) { // 20% Chance
-                    state.energy += 20000;
-                    showModal('EPIC DROP!', '20,000 Energy Cans added!', '🎁');
-                } else { // 79% Regular Reward
-                    state.coins += 20000000;
-                    showModal('WHEEL REWARD', '20,000,000 Coins claimed!', '🪙');
+                document.getElementById('reel1').innerText = slotItems[Math.floor(Math.random() * slotItems.length)];
+                document.getElementById('reel2').innerText = slotItems[Math.floor(Math.random() * slotItems.length)];
+                document.getElementById('reel3').innerText = slotItems[Math.floor(Math.random() * slotItems.length)];
+
+                coins += 25;
+                updateHUD();
+            } else {
+                alert('No Energy! Invite friends or spin the Wheel.');
+            }
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('wheelCanvas');
+            let deg = Math.floor(Math.random() * 3600) + 720;
+            wheel.style.transform = `rotate(${deg}deg)`;
+
+            setTimeout(() => {
+                let chance = Math.random() * 100;
+                if (chance <= 1) {
+                    alert('JACKPOT! +100,000 Energy!');
+                    energy += 100000;
+                } else if (chance <= 21) {
+                    alert('BIG WIN! +15,000 Energy!');
+                    energy += 15000;
+                } else {
+                    alert('Win: +100 Energy!');
+                    energy += 100;
                 }
                 updateHUD();
-            }, 3500);
+            }, 3000);
         }
 
-        // Upgrade Purchasing System
-        function buyUpgrade(type, cost) {
-            if (state.coins >= cost) {
-                state.coins -= cost;
-                state.level += 1;
-                showModal('UPGRADED!', `Successfully upgraded ${type.toUpperCase()}!`, '✨');
+        function buyItem(cost) {
+            if (coins >= cost) {
+                coins -= cost;
                 updateHUD();
+                alert('Purchased!');
             } else {
-                showModal('NEED COINS', 'Not enough coins to purchase this upgrade!', '🪙');
+                alert('Not enough coins!');
             }
         }
 
-        // Invite & Link Copy Logic
         function copyInviteLink() {
-            const dummyLink = "https://t.me/TapixBoinkerBot?start=ref_alex123";
-            document.execCommand('copy');
-            showModal('LINK COPIED', 'Referral link copied to clipboard!', '📋');
+            navigator.clipboard.writeText("https://t.me/BoinkersBot?start=ref123");
+            alert('Invite link copied!');
         }
 
-        function shareTelegram() {
-            if (window.Telegram && window.Telegram.WebApp) {
-                window.Telegram.WebApp.openTelegramLink("https://t.me/share/url?url=https://t.me/TapixBoinkerBot");
-            } else {
-                copyInviteLink();
-            }
-        }
-
-        // Modal Helpers
-        function showModal(title, msg, icon) {
-            document.getElementById('modal-title').innerText = title;
-            document.getElementById('modal-msg').innerText = msg;
-            document.getElementById('modal-icon').innerText = icon;
-            document.getElementById('gameModal').classList.remove('hidden');
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        // Initialize UI on startup
         updateHUD();
     </script>
 </body>
 </html>
-```
